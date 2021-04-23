@@ -27,6 +27,7 @@ class FetchAPI(private val flaskApiService: FlaskApiService):FetchAPIInterface {
                 Log.d("Fetch API fail",throwable.message)
                 when(throwable){
                     is HttpException -> DataResponseFailure(DataError.HTTP_EXCEPTION,throwable)
+                    is SocketTimeoutException -> DataResponseFailure(DataError.HTTP_EXCEPTION,throwable)
                     else -> DataResponseFailure(DataError.UNKNOWN,throwable)
                 }
             }

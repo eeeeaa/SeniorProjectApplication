@@ -4,20 +4,25 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.ekn.gruzer.gaugelibrary.ArcGauge
+import com.ekn.gruzer.gaugelibrary.Range
 import com.example.seniorprojectapp.R
 import com.example.seniorprojectapp.data.model.*
 import com.example.seniorprojectapp.presentation.factory.MainViewModelFactory
 import com.example.seniorprojectapp.presentation.viewModel.MainViewModel
+import java.math.BigDecimal
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var model: MainViewModel
-    final val TAG = "Main activity: "
+    val TAG = "Main activity: "
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -25,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         initialization()
 
     }
-    private fun toast(msg:String){
+    private fun toast(msg: String){
         val inflater = layoutInflater
         val layout: View =
             inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
@@ -40,19 +45,56 @@ class MainActivity : AppCompatActivity() {
         toast.show()
     }
     private fun initialization(){
+        pmDataloadingStatus(true)
         observeData()
     }
+    private fun pmDataloadingStatus(isLoad: Boolean){
+        val pm_load = findViewById<ProgressBar>(R.id.pm_loading_bar)
+        val fire_load = findViewById<ProgressBar>(R.id.fire_loading_bar)
+        val temp_load = findViewById<ProgressBar>(R.id.temp_loading_bar)
+        val humid_load = findViewById<ProgressBar>(R.id.humid_loading_bar)
+        val traffic_load = findViewById<ProgressBar>(R.id.traffic_loading_bar)
+        val wind_load = findViewById<ProgressBar>(R.id.wind_loading_bar)
+        val bar_list = arrayListOf<ProgressBar>(
+            pm_load,
+            fire_load,
+            temp_load,
+            humid_load,
+            traffic_load,
+            wind_load
+        )
+        for (item in bar_list){
+            if (isLoad) {
+                item.visibility = View.VISIBLE
+            }else{
+                item.visibility = View.GONE
+            }
+        }
+        gaugeLoadingStatus(isLoad)
+    }
+    private fun gaugeLoadingStatus(isLoad: Boolean){
+        val gauge_list = arrayListOf<Int>(R.id.fire_gauge,R.id.temp_gauge,R.id.humid_gauge,R.id.traffic_gauge,R.id.wind_gauge)
+        for (item in gauge_list){
+            if (isLoad){
+                gaugeSetVisible(false,item)
+            }else{
+                gaugeSetVisible(true,item)
+            }
+        }
+    }
 
-    fun observeData(){
+    private fun observeData(){
         val observer = Observer<DataResponse>{
             if(it != null){
                 when(it){
                     is DataResponseSuccess -> {
                         Log.d(TAG, "success!")
+                        pmDataloadingStatus(false)
                         setData(it.data)
                     }
                     is DataResponseFailure -> {
                         Log.d(TAG, "error :(")
+                        pmDataloadingStatus(false)
                         when (it.error) {
                             DataError.HTTP_EXCEPTION -> {
                                 toast("HTTP exception: " + it.e?.message)
@@ -71,18 +113,40 @@ class MainActivity : AppCompatActivity() {
         model.currentData.observe(this, observer)
     }
     fun setData(data: PMData){
-        val current_pm_data = findViewById<TextView>(R.id.current_pm_data)
-        val fire_data = findViewById<TextView>(R.id.fire_data)
-        val temp_data = findViewById<TextView>(R.id.temp_data)
-        val humid_data = findViewById<TextView>(R.id.humid_data)
-        val traffic_data = findViewById<TextView>(R.id.traffic_data)
-        val wind_data = findViewById<TextView>(R.id.wind_data)
+        val currentPMData = findViewById<TextView>(R.id.current_pm_data)
+        currentPMData.text = data.pm_current.toString()
 
-        current_pm_data.text = data.pm_current.toString()
-        fire_data.text = data.fire.toString()
-        temp_data.text = data.temp.toString()
-        humid_data.text = data.humidity.toString()
-        traffic_data.text = data.traffic.toString()
-        wind_data.text = data.windspeed.toString()
+        circularGauge(data.fire, R.id.fire_gauge)
+        circularGauge(data.temp, R.id.temp_gauge)
+        circularGauge(data.humidity, R.id.humid_gauge)
+        circularGauge(data.traffic, R.id.traffic_gauge)
+        circularGauge(data.windspeed, R.id.wind_gauge)
+    }
+
+    private fun circularGauge(data: Float?, view_id: Int){
+        val gauge = findViewById<ArcGauge>(view_id)
+        val range = Range()
+        range.color = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        gauge.addRange(range)
+        gauge.minValue = 0.0
+        gauge.maxValue = 100.0
+        gauge.valueColor = ContextCompat.getColor(this, R.color.colorPrimaryDark)
+        if (data != null) {
+            var round_data = round(data,2)
+            gauge.value = round_data.toDouble()
+        }
+    }
+    private fun gaugeSetVisible(status:Boolean,gauge_id:Int){
+        val gauge = findViewById<ArcGauge>(gauge_id)
+        if(status) {
+            gauge.visibility = View.VISIBLE
+        }else{
+            gauge.visibility = View.GONE
+        }
+    }
+    private fun round(d: Float, decimalPlace: Int): BigDecimal {
+        var bd = BigDecimal(java.lang.Float.toString(d))
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP)
+        return bd
     }
 }
