@@ -1,7 +1,8 @@
 package com.example.seniorprojectapp.data.contract
 
-import com.example.seniorprojectapp.data.model.PMData
+import com.example.seniorprojectapp.data.model.DataResponse
+import io.reactivex.Observable
 
 interface FetchAPIInterface {
-    fun getDataFromApi():List<PMData>
+    fun getDataFromApi():Observable<DataResponse>
 }
