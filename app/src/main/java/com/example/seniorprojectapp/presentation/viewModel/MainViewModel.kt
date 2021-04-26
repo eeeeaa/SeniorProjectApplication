@@ -16,17 +16,27 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class MainViewModel: ViewModel() {
-    var Url = URLSource().LOCALHOST + URLSource().DATA_URL
+    var source = URLSource()
+    var Url = source.LOCALHOST + source.DATA_URL
+    var array_url = source.LOCALHOST + source.PM_ARRAY_URL
     var fetchAPIInterface:FetchAPIInterface = FetchAPI(NetworkProvider(Url).provideFlaskAPIClient())
     var flaskApiInteractor:FlaskApiInteractorInterface = FlaskApiInteractor(fetchAPIInterface)
     lateinit var currentData: LiveData<DataResponse>
+    lateinit var currentArrayData:LiveData<DataArrayResponse>
     init {
         getPMData()
+        getPMArrayData()
     }
     fun getPMData(){
-        var publisher = flaskApiInteractor.getPMData()?.toFlowable(BackpressureStrategy.BUFFER)
+        val publisher = flaskApiInteractor.getPMData()?.toFlowable(BackpressureStrategy.BUFFER)
         if (publisher != null) {
             currentData = LiveDataReactiveStreams.fromPublisher(publisher.subscribeOn(Schedulers.io()))
+        }
+    }
+    fun getPMArrayData(){
+        val publisher = flaskApiInteractor.getPMArrayData()?.toFlowable(BackpressureStrategy.BUFFER)
+        if(publisher!= null){
+            currentArrayData = LiveDataReactiveStreams.fromPublisher(publisher.subscribeOn(Schedulers.io()))
         }
     }
 }

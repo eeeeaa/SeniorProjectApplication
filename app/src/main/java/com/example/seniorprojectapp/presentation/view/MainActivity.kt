@@ -11,11 +11,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.anychart.AnyChart
+import com.anychart.AnyChartView
+import com.anychart.chart.common.dataentry.DataEntry
+import com.anychart.chart.common.dataentry.ValueDataEntry
+import com.anychart.enums.Anchor
+import com.anychart.enums.MarkerType
+import com.anychart.enums.TooltipPositionMode
 import com.ekn.gruzer.gaugelibrary.ArcGauge
 import com.ekn.gruzer.gaugelibrary.Range
 import com.example.seniorprojectapp.R
 import com.example.seniorprojectapp.data.model.*
 import com.example.seniorprojectapp.presentation.factory.MainViewModelFactory
+import com.example.seniorprojectapp.presentation.model.ArrayDataModel
 import com.example.seniorprojectapp.presentation.viewModel.MainViewModel
 import java.math.BigDecimal
 
@@ -28,7 +37,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         model = ViewModelProvider(this, MainViewModelFactory()).get(MainViewModel::class.java)
         initialization()
-
+        val refreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+        refreshLayout.setOnRefreshListener {
+            initialization()
+            refreshLayout.isRefreshing = false
+        }
     }
     private fun toast(msg: String){
         val inflater = layoutInflater
@@ -47,6 +60,7 @@ class MainActivity : AppCompatActivity() {
     private fun initialization(){
         pmDataloadingStatus(true)
         observeData()
+        observeArrayData()
     }
     private fun pmDataloadingStatus(isLoad: Boolean){
         val pm_load = findViewById<ProgressBar>(R.id.pm_loading_bar)
@@ -73,12 +87,18 @@ class MainActivity : AppCompatActivity() {
         gaugeLoadingStatus(isLoad)
     }
     private fun gaugeLoadingStatus(isLoad: Boolean){
-        val gauge_list = arrayListOf<Int>(R.id.fire_gauge,R.id.temp_gauge,R.id.humid_gauge,R.id.traffic_gauge,R.id.wind_gauge)
+        val gauge_list = arrayListOf<Int>(
+            R.id.fire_gauge,
+            R.id.temp_gauge,
+            R.id.humid_gauge,
+            R.id.traffic_gauge,
+            R.id.wind_gauge
+        )
         for (item in gauge_list){
             if (isLoad){
-                gaugeSetVisible(false,item)
+                gaugeSetVisible(false, item)
             }else{
-                gaugeSetVisible(true,item)
+                gaugeSetVisible(true, item)
             }
         }
     }
@@ -112,7 +132,71 @@ class MainActivity : AppCompatActivity() {
         }
         model.currentData.observe(this, observer)
     }
-    fun setData(data: PMData){
+    private fun observeArrayData(){
+        val observer = Observer<DataArrayResponse> {
+            if(it != null){
+                when(it){
+                    is DataArrayResponseSuccess -> {
+                        Log.d(TAG, "array success!")
+                        setArrayData(it.data)
+                    }
+                    is DataArrayResponseFailure -> {
+                        Log.d(TAG, "array failure!")
+                        when (it.error) {
+                            DataArrayError.HTTP_EXCEPTION -> {
+                                toast("HTTP exception: " + it.e?.message)
+                            }
+                            DataArrayError.EMPTY_NULL -> {
+                                toast("empty or null data!")
+                            }
+                            DataArrayError.UNKNOWN -> {
+                                toast("something went wrong!")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        model.currentArrayData.observe(this, observer)
+    }
+    private fun setArrayData(data: List<PMArrayData>){
+        val arrayChart = findViewById<AnyChartView>(R.id.array_chart)
+        arrayChart.setProgressBar(findViewById(R.id.array_loading_bar))
+        val arrayData = arrayListOf<ArrayDataModel>()
+        for (item in data){
+            arrayData.add(ArrayDataModel(item.pm25, item.time))
+        }
+        val cartesian = AnyChart.line()
+        cartesian.animation(true)
+        cartesian.padding(10.0, 20.0, 5.0, 20.0)
+        cartesian.crosshair().enabled(true)
+        cartesian.crosshair()
+            .yLabel(true)
+
+        cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
+
+        cartesian.title("Trend of PM2.5 concentration in Bangkok")
+
+        cartesian.yAxis(0).title("PM2.5 concentration (μg/m^3)")
+        //cartesian.xAxis(0).labels().padding(5.0, 5.0, 5.0, 5.0)
+        val dataSeries = arrayListOf<DataEntry>()
+        for (item in arrayData){
+            dataSeries.add(ValueDataEntry(item.datetime, item.pm25))
+        }
+        val series1 = cartesian.line(dataSeries)
+        series1.name("PM2.5")
+        series1.hovered().markers().enabled(true)
+        series1.hovered().markers()
+            .type(MarkerType.CIRCLE)
+            .size(4.0)
+        series1.tooltip()
+            .position("right")
+            .anchor(Anchor.LEFT_CENTER)
+            .offsetX(5.0)
+            .offsetY(5.0)
+        arrayChart.setChart(cartesian)
+    }
+    private fun setData(data: PMData){
         val currentPMData = findViewById<TextView>(R.id.current_pm_data)
         currentPMData.text = data.pm_current.toString()
 
@@ -132,11 +216,11 @@ class MainActivity : AppCompatActivity() {
         gauge.maxValue = 100.0
         gauge.valueColor = ContextCompat.getColor(this, R.color.colorPrimaryDark)
         if (data != null) {
-            var round_data = round(data,2)
+            var round_data = round(data, 2)
             gauge.value = round_data.toDouble()
         }
     }
-    private fun gaugeSetVisible(status:Boolean,gauge_id:Int){
+    private fun gaugeSetVisible(status: Boolean, gauge_id: Int){
         val gauge = findViewById<ArcGauge>(gauge_id)
         if(status) {
             gauge.visibility = View.VISIBLE

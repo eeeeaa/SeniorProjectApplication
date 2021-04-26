@@ -32,4 +32,26 @@ class FetchAPI(private val flaskApiService: FlaskApiService):FetchAPIInterface {
                 }
             }
     }
+
+    override fun getArrayDataFromApi(): Observable<DataArrayResponse> {
+        return flaskApiService.getArrayData()
+            .observeOn(Schedulers.io())
+            .map<DataArrayResponse>{
+                data ->
+                Log.d("Fetch API array success",data.toString())
+                if(!data.isNullOrEmpty()){
+                    DataArrayResponseSuccess(data)
+                }else{
+                    DataArrayResponseFailure(DataArrayError.EMPTY_NULL)
+                }
+            }.onErrorReturn {
+                    throwable ->
+                Log.d("Fetch API array fail",throwable.message)
+                when(throwable){
+                    is HttpException -> DataArrayResponseFailure(DataArrayError.HTTP_EXCEPTION,throwable)
+                    is SocketTimeoutException -> DataArrayResponseFailure(DataArrayError.HTTP_EXCEPTION,throwable)
+                    else -> DataArrayResponseFailure(DataArrayError.UNKNOWN,throwable)
+                }
+            }
+    }
 }

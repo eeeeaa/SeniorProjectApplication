@@ -1,10 +1,7 @@
 package com.example.seniorprojectapp.presentation.interactor
 
 import com.example.seniorprojectapp.data.contract.FetchAPIInterface
-import com.example.seniorprojectapp.data.model.DataError
-import com.example.seniorprojectapp.data.model.DataResponse
-import com.example.seniorprojectapp.data.model.DataResponseFailure
-import com.example.seniorprojectapp.data.model.DataResponseSuccess
+import com.example.seniorprojectapp.data.model.*
 import com.example.seniorprojectapp.presentation.contract.FlaskApiInteractorInterface
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -27,5 +24,23 @@ class FlaskApiInteractor(private val fetchAPIInterface: FetchAPIInterface):Flask
 
                     }
                 }
+    }
+
+    override fun getPMArrayData(): Observable<DataArrayResponse>? {
+        return fetchAPIInterface.getArrayDataFromApi().observeOn(Schedulers.io())
+            .map {
+                when(it){
+                    is DataArrayResponseSuccess -> {
+                        DataArrayResponseSuccess(it.data)
+                    }
+                    is DataArrayResponseFailure -> {
+                        when(it.error){
+                            DataArrayError.HTTP_EXCEPTION -> DataArrayResponseFailure(DataArrayError.HTTP_EXCEPTION,it.e)
+                            DataArrayError.EMPTY_NULL -> DataArrayResponseFailure(DataArrayError.EMPTY_NULL)
+                            else -> DataArrayResponseFailure(DataArrayError.UNKNOWN,it.e)
+                        }
+                    }
+                }
+            }
     }
 }

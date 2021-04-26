@@ -6,4 +6,6 @@ import retrofit2.http.GET
 interface FlaskApiService {
     @GET("/getData/")
     fun getData(): Observable<PMData>
+    @GET("/getPMArray/")
+    fun getArrayData():Observable<List<PMArrayData>>
 }
