@@ -14,6 +14,7 @@ class FetchAPI(private val flaskApiService: FlaskApiService):FetchAPIInterface {
     //fetch data from the flask api
     override fun getDataFromApi(): Observable<DataResponse> {
         return flaskApiService.getData()
+            .retry(5)
             .observeOn(Schedulers.io())
             .map<DataResponse> { data ->
                 Log.d("Fetch API success",data.toString())
@@ -35,6 +36,7 @@ class FetchAPI(private val flaskApiService: FlaskApiService):FetchAPIInterface {
 
     override fun getArrayDataFromApi(): Observable<DataArrayResponse> {
         return flaskApiService.getArrayData()
+            .retry(5)
             .observeOn(Schedulers.io())
             .map<DataArrayResponse>{
                 data ->

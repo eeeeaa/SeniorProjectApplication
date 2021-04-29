@@ -1,241 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
+    android:background="@drawable/collaspebackground"
     tools:context=".presentation.view.MainActivity">
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <RelativeLayout
-            android:layout_marginTop="32dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <androidx.cardview.widget.CardView
-                xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:layout_gravity="center"
+            android:layout_height="200dp"
+            android:theme="@style/AppTheme"
+            android:fitsSystemWindows="true">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/toolbar_layout"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_margin="12dp"
-                card_view:cardElevation="3dp"
-                card_view:cardCornerRadius="12dp">
+                android:layout_height="match_parent"
+                android:background="@drawable/collaspebackground"
+                android:fitsSystemWindows="true"
+                app:contentScrim="@color/splashDark"
+                app:expandedTitleTextAppearance="@string/appbar_scrolling_view_behavior"
+                app:collapsedTitleTextAppearance="@string/appbar_scrolling_view_behavior"
+                app:title="PM Checker"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:toolbarId="@+id/toolbar">
 
-                <androidx.cardview.widget.CardView
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
                     android:layout_width="match_parent"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:layout_height="80dp">
-                    <ProgressBar
-                        android:id="@+id/pm_loading_bar"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_gravity="center"/>
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:padding="16dp">
-                        <TextView
-                            android:id="@+id/current_pm_data"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""
-                            android:textSize="40dp"
-                            android:layout_gravity="center"
-                            android:layout_marginLeft="10dp"/>
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
+                    >
+                </androidx.appcompat.widget.Toolbar>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-                        <TextView
-                            android:id="@+id/h1_pm_data"
-                            android:layout_toRightOf="@id/current_pm_data"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""/>
-                        <TextView
-                            android:id="@+id/h3_pm_data"
-                            android:layout_toRightOf="@id/h1_pm_data"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""/>
-                        <TextView
-                            android:id="@+id/h24_pm_data"
-                            android:layout_toRightOf="@id/h3_pm_data"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""/>
-
-                    </RelativeLayout>
-                </androidx.cardview.widget.CardView>
-                <androidx.cardview.widget.CardView
-                    android:layout_gravity="bottom"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp">
-                    <ProgressBar
-                        android:id="@+id/array_loading_bar"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_gravity="center"/>
-                    <com.anychart.AnyChartView
-                        android:id="@+id/array_chart"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
-                </androidx.cardview.widget.CardView>
-            </androidx.cardview.widget.CardView>
-
-        </RelativeLayout>
-        <GridLayout
-            android:columnCount="2"
-            android:rowCount="2"
-            android:alignmentMode="alignMargins"
-            android:columnOrderPreserved="false"
-            android:layout_gravity="center"
+        </com.google.android.material.appbar.AppBarLayout>
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.cardview.widget.CardView
-                xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:layout_width="wrap_content"
-                android:layout_height="100dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                card_view:cardElevation="6dp"
-                android:layout_margin="12dp"
-                card_view:cardCornerRadius="12dp">
-                <ProgressBar
-                    android:id="@+id/fire_loading_bar"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"/>
-                <com.ekn.gruzer.gaugelibrary.ArcGauge
-                    android:id="@+id/fire_gauge"
-                    android:layout_gravity="center"
-                    android:layout_width= "120dp"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginTop="50dp"
-                    android:layout_gravity="center"
-                    android:text="Fire"/>
-            </androidx.cardview.widget.CardView>
-            <androidx.cardview.widget.CardView
-                xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:layout_width="wrap_content"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                card_view:cardElevation="6dp"
-                android:layout_margin="12dp"
-                card_view:cardCornerRadius="12dp">
-                <ProgressBar
-                    android:id="@+id/temp_loading_bar"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"/>
-                <com.ekn.gruzer.gaugelibrary.ArcGauge
-                    android:id="@+id/temp_gauge"
-                    android:layout_gravity="center"
-                    android:layout_width= "120dp"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginTop="50dp"
-                    android:layout_gravity="center"
-                    android:text="Temperature"/>
-
-            </androidx.cardview.widget.CardView>
-            <androidx.cardview.widget.CardView
-                xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:layout_width="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                card_view:cardElevation="6dp"
-                android:layout_margin="12dp"
-                card_view:cardCornerRadius="12dp">
-                <ProgressBar
-                    android:id="@+id/humid_loading_bar"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"/>
-                <com.ekn.gruzer.gaugelibrary.ArcGauge
-                    android:id="@+id/humid_gauge"
-                    android:layout_gravity="center"
-                    android:layout_width= "120dp"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginTop="50dp"
-                    android:layout_gravity="center"
-                    android:text="Humidity"/>
-            </androidx.cardview.widget.CardView>
-            <androidx.cardview.widget.CardView
-                xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:layout_width="wrap_content"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                card_view:cardElevation="6dp"
-                android:layout_margin="12dp"
-                card_view:cardCornerRadius="12dp">
-                <ProgressBar
-                    android:id="@+id/traffic_loading_bar"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"/>
-                <com.ekn.gruzer.gaugelibrary.ArcGauge
-                    android:id="@+id/traffic_gauge"
-                    android:layout_gravity="center"
-                    android:layout_width= "120dp"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginTop="50dp"
-                    android:layout_gravity="center"
-                    android:text="Traffic"/>
-            </androidx.cardview.widget.CardView>
-            <androidx.cardview.widget.CardView
-                xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:layout_width="wrap_content"
-                android:layout_height="150dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                card_view:cardElevation="6dp"
-                android:layout_margin="12dp"
-                card_view:cardCornerRadius="12dp">
-                <ProgressBar
-                    android:id="@+id/wind_loading_bar"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"/>
-                <com.ekn.gruzer.gaugelibrary.ArcGauge
-                    android:id="@+id/wind_gauge"
-                    android:layout_gravity="center"
-                    android:layout_width= "120dp"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorPrimary"
-                    android:layout_marginTop="50dp"
-                    android:layout_gravity="center"
-                    android:text="Windspeed"/>
-            </androidx.cardview.widget.CardView>
-        </GridLayout>
-    </LinearLayout>
-    </ScrollView>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:background="@drawable/scroll_background"
+            android:layout_height="match_parent">
+            <include layout="@layout/content_scroll" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -177,7 +178,11 @@ class MainActivity : AppCompatActivity() {
 
         cartesian.title("Trend of PM2.5 concentration in Bangkok")
 
-        cartesian.yAxis(0).title("PM2.5 concentration (μg/m^3)")
+        val titletext = "PM2.5 concentration " + HtmlCompat.fromHtml(
+            "(μg/m<sup><small>3</small></sup>)",
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
+        cartesian.yAxis(0).title(titletext)
         //cartesian.xAxis(0).labels().padding(5.0, 5.0, 5.0, 5.0)
         val dataSeries = arrayListOf<DataEntry>()
         for (item in arrayData){
@@ -185,6 +190,7 @@ class MainActivity : AppCompatActivity() {
         }
         val series1 = cartesian.line(dataSeries)
         series1.name("PM2.5")
+        series1.stroke("red",2," 2","2","2")
         series1.hovered().markers().enabled(true)
         series1.hovered().markers()
             .type(MarkerType.CIRCLE)
@@ -194,11 +200,19 @@ class MainActivity : AppCompatActivity() {
             .anchor(Anchor.LEFT_CENTER)
             .offsetX(5.0)
             .offsetY(5.0)
+        cartesian.legend().enabled(true)
+        cartesian.legend().fontSize(10.0)
+        cartesian.legend().padding(0.0, 0.0, 10.0, 0.0)
         arrayChart.setChart(cartesian)
     }
     private fun setData(data: PMData){
         val currentPMData = findViewById<TextView>(R.id.current_pm_data)
+        val pmUnit = findViewById<TextView>(R.id.unit_pm_data)
         currentPMData.text = data.pm_current.toString()
+        pmUnit.text = HtmlCompat.fromHtml(
+            " μg/m<sup><small>3</small></sup>",
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        );
 
         circularGauge(data.fire, R.id.fire_gauge)
         circularGauge(data.temp, R.id.temp_gauge)

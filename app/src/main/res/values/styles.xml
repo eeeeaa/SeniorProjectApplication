@@ -7,5 +7,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">#ffffff</item>
     </style>
-
+    <style name="collapsingToolbarLayoutTitleColor" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#ffffff</item>
+    </style>
 </resources>
